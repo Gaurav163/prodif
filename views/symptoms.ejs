@@ -1,0 +1,145 @@
+<%- include('header'); %>
+<div>
+  <h4>Predict Disease Based on Symptoms</h4>
+  <div class="form-group">
+    <label for="gender">Example multiple select</label>
+    <select class="form-control" id="gender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="year">Year of Birth ( 1900 <= year <= 2022 ):</label>
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Year of Birth"
+      id="year"
+      name="year"
+      value="2000"
+      required
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="sym">Symptom:</label>
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search Symptom"
+      id="sym"
+      name="sym"
+      onkeyup="search()"
+      required
+    />
+  </div>
+  <div id="sim"></div>
+
+  <br />
+
+  <h4>Selected Symptoms</h4>
+  <div id="syms"></div>
+
+  <button
+    type="submit"
+    class="btn btn-info"
+    style="margin-top: 20px; background-color: #37645e"
+    onclick="getresult()"
+  >
+    Predict Result
+  </button>
+  <br /><br />
+  <div id="result" hidden="true">
+    <h4>Result:</h4>
+  </div>
+
+  <input name="data" id="data" hidden value="<%= JSON.stringify(symptoms) %>" />
+</div>
+
+<script>
+  const token = "<%=token1%>";
+  const path = "<%=path1%>";
+  var symptoms = JSON.parse(document.getElementById("data").value);
+  var syms = [];
+  function search() {
+    let x = document.getElementById("sym").value;
+    x = x.toLowerCase();
+    console.log(x);
+    if (x == "") {
+    }
+
+    let matched = [];
+    for (let i = 0; i < symptoms.length; i++) {
+      let y = symptoms[i];
+      if (y.Name.length < x.length) continue;
+      for (let j = 0; j < y.Name.length - x.length + 1; j++) {
+        let z = y.Name.substring(j, x.length + j);
+        if (z == x) {
+          let check = 0;
+          syms.forEach((sym) => {
+            if (sym.ID == y.ID) check = 1;
+          });
+          if (check == 0) matched.push(y);
+          break;
+        }
+      }
+      if (matched.length >= 8) break;
+    }
+    match(matched);
+  }
+
+  function match(matched) {
+    console.log(matched);
+    let x = document.getElementById("sim");
+    x.innerHTML = "";
+    matched.forEach((el) => {
+      x.innerHTML += `<div class="addsym" style="cursor: pointer;" onclick="addsym(${el.ID})"> <i class="fa fa-plus" style="font-size:16px;color:#37645e;margin-right:20px;"></i> ${el.Name} </div>`;
+    });
+  }
+  function addsym(id) {
+    let x = document.getElementById("sim");
+
+    symptoms.forEach((sym) => {
+      let check = 0;
+      syms.forEach((sym) => {
+        if (sym.ID == id) check = 1;
+      });
+      if (sym.ID == id && check == 0) {
+        console.log(sym);
+        syms.push(sym);
+        console.log(syms);
+        x.innerHTML = "";
+        document.getElementById("sym").value = "";
+        rendersyms();
+      }
+    });
+  }
+  function rendersyms() {
+    let x = document.getElementById("syms");
+    x.innerHTML = "";
+
+    syms.forEach((el) => {
+      x.innerHTML += `<div class="addsym" style="cursor: pointer;" onclick="subsym(${el.ID})"> <i class="fa fa-minus" style="font-size:16px;color:red;margin-right:20px;"></i> ${el.Name} </div>`;
+    });
+  }
+
+  function subsym(id) {
+    syms = syms.filter((sym) => sym.ID != id);
+    rendersyms();
+  }
+
+  function getresult() {
+    let age = document.getElementById("year").value;
+    let url = `${path}?token=${token}&language=en-gb&symptoms=[`;
+    syms.forEach((sym) => (url += sym.ID + ","));
+    url = url.substring(0, url.length - 1);
+    url += "]&gender=" + document.getElementById("gender").value;
+    url += "&year_of_birth=" + age;
+    console.log(url);
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+  }
+</script>
+
+<%- include('footer'); %>
