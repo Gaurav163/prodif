@@ -2,10 +2,12 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const morgan = require('morgan')
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
+app.use(morgan('combined'))
 
 var sympt = require("./symptoms.json");
 
@@ -39,4 +41,4 @@ app.get("/testresults", async (req, res) => {
 
 
 
-app.listen(process.env.PORT || 3000, () => console.log('Server started on 3000!'));
+app.listen(process.env.PORT || 3001, () => console.log('Server started on 3000!'));

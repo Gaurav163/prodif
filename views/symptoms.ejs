@@ -46,11 +46,12 @@
     style="margin-top: 20px; background-color: #37645e"
     onclick="getresult()"
   >
-    Predict Result
+    Predict Disease
   </button>
   <br /><br />
   <div id="result" hidden="true">
     <h4>Result:</h4>
+    <div id="res"></div>
   </div>
 
   <input name="data" id="data" hidden value="<%= JSON.stringify(symptoms) %>" />
@@ -136,9 +137,22 @@
     url += "]&gender=" + document.getElementById("gender").value;
     url += "&year_of_birth=" + age;
     console.log(url);
+    document.getElementById("res").innerHTML = "";
     fetch(url)
       .then((response) => response.json())
-      .then((data) => console.log(data));
+      .then((data) => {
+        console.log(data);
+        document.getElementById("result").hidden = false;
+        for (let i = 0; i < data.length && i < 4; i++) {
+          document.getElementById(
+            "res"
+          ).innerHTML += `<div class="addsym" style="cursor: pointer;" "> ${
+            i + 1
+          }. ${data[i].Issue.Name} with probability of ${
+            data[i].Issue.Accuracy
+          } </div>`;
+        }
+      });
   }
 </script>
 

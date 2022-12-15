@@ -1,1 +1,30 @@
-<%- include('header'); %> <%- include('footer'); %>
+<%- include('header'); %>
+<h4>Predict test on base of Disease</h4>
+
+<div class="form-group">
+  <label for="dis">Disease</label>
+  <select class="form-control" id="dis">
+    <option value="1">Covid-19</option>
+    <option value="2">Brain Tumer</option>
+    <option value="3">Dengue</option>
+    <option value="4">Diabetes</option>
+  </select>
+</div>
+
+<button
+  type="submit"
+  class="btn btn-info"
+  style="margin-top: 20px; background-color: #37645e"
+  onclick="getresult()"
+>
+  Predict Tests
+</button>
+
+<div id="result">
+  <h3>Tests:</h3>
+  <div id="res"></div>
+</div>
+
+<script></script>
+
+<%- include('footer'); %>

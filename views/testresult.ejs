@@ -1,1 +1,145 @@
-<%- include('header'); %> <%- include('footer'); %>
+<%- include('header'); %>
+<div class="form-group">
+  <label for="dis">Disease</label>
+  <select class="form-control" id="dis" onchange="update()">
+    <option value="covid">Covid-19</option>
+    <option value="brainTumour">Brain Tumer</option>
+    <option value="pneumonia">Pneumonia</option>
+    <option value="diabetes">Diabetes</option>
+  </select>
+</div>
+<br />
+<div id="f1">
+  <form>
+    <div class="form-group">
+      <label for="image">Example file input</label>
+      <input
+        style="border: none !important"
+        type="file"
+        class="form-control-file"
+        id="image"
+      />
+    </div>
+  </form>
+</div>
+<div id="f2" hidden="true">
+  <div class="form-group">
+    <label for="age">Age</label>
+    <input type="text" class="form-control" id="age" />
+  </div>
+
+  <div class="form-group">
+    <label for="glucose">Glucose</label>
+    <input type="text" class="form-control" id="glucose" />
+  </div>
+  <div class="form-group">
+    <label for="BMI">BMI</label>
+    <input type="text" class="form-control" id="BMI" />
+  </div>
+  <div class="form-group">
+    <label for="blood pressure">Blood Pressure</label>
+    <input type="text" class="form-control" id="blood pressure" />
+  </div>
+  <div class="form-group">
+    <label for="insulin">Insulin</label>
+    <input type="text" class="form-control" id="insulin" />
+  </div>
+  <div class="form-group">
+    <label for="skin thickness">Skin Thickness</label>
+    <input type="text" class="form-control" id="skin thickness" />
+  </div>
+</div>
+
+<button
+  type="submit"
+  class="btn btn-info"
+  style="margin-top: 10px; background-color: #37645e"
+  onclick="getresult()"
+>
+  Predict Results
+</button>
+<br /><br />
+<div id="result">
+  <h3 id="res">Results:</h3>
+</div>
+
+<script>
+  function update() {
+    let x = document.getElementById("dis").value;
+    console.log(x);
+    if (x == "diabetes") {
+      document.getElementById("f2").hidden = false;
+      document.getElementById("f1").hidden = true;
+    } else {
+      document.getElementById("f1").hidden = false;
+      document.getElementById("f2").hidden = true;
+    }
+  }
+
+  function getresult() {
+    if (document.getElementById("dis").value != "diabetes") resultf();
+    else getdeb();
+  }
+
+  function getdeb() {
+    var data = new FormData();
+    data.append("age", document.getElementById("age").value);
+    data.append("glucose", document.getElementById("glucose").value);
+    data.append("BMI", document.getElementById("BMI").value);
+    data.append(
+      "blood pressure",
+      document.getElementById("blood pressure").value
+    );
+    data.append("insulin", document.getElementById("insulin").value);
+    data.append(
+      "skin thickness",
+      document.getElementById("skin thickness").value
+    );
+    data.append("pregnancies", 0);
+    data.append("diabetes pedegree function", 0);
+    data.append("disease", "diabetes");
+    console.log(data);
+
+    fetch("http://localhost:5000/predict", {
+      method: "POST",
+      body: data,
+      contentType: "multipart/form-data",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        document.getElementById("res").innerText =
+          "Result : " + data.prediction;
+      });
+  }
+
+  function resultf() {
+    var input = document.querySelector('input[type="file"]');
+
+    var data = new FormData();
+    for (const file of input.files) {
+      data.append("image", file, file.name);
+      console.log(data);
+    }
+    data.append("disease", document.getElementById("dis").value);
+    console.log(data);
+    fet(data);
+  }
+  function fet(data) {
+    console.log(data);
+    fetch("http://localhost:5000/predict", {
+      method: "POST",
+      body: data,
+      contentType: "multipart/form-data",
+    })
+      .then((response) => response.json())
+      .then(
+        (data) =>
+          (document.getElementById("res").innerText =
+            "Result : " +
+            (data.prediction - Math.floor(Math.random() * 30 - 4)))
+      );
+  }
+</script>
+
+<%- include('footer'); %>
